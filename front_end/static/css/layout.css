@@ -7,12 +7,14 @@ body, html {
   margin: 0;
   height: 100%;
   font-family: Arial, sans-serif;
+  overflow: hidden; /* Prevent page from scrolling */
 }
 
 /* Outer layout */
 .layout {
   display: flex;
   height: 100vh; /* Full viewport height */
+  width: 100vw;
   overflow: hidden;
 }
 
@@ -36,6 +38,7 @@ body, html {
   background-color: #f8fafc;
   padding: 0.25rem;
   overflow-y: auto;
+  width: 800px;
 }
 
 
