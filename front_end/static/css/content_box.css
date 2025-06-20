@@ -13,10 +13,20 @@
 .form-div {
   flex: 0 0 auto;
   height: 10%;
+  width: 80%;
+  margin: 0 auto;  
   border: 1px solid #000;
 }
 
-.box {
+.chat-box-user {
+    width: 80%;
+    height: 100px;
+    margin-left: auto;
+    background-color: #e2e8f0;
+    margin-bottom: 10px;
+}
+
+.chat-box-bot {
     width: 100%;
     height: 100px;
     background-color: #e2e8f0;

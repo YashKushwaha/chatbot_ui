@@ -10,6 +10,19 @@ body, html {
   overflow: hidden; /* Prevent page from scrolling */
 }
 
+/* Default (light mode) */
+body {
+  background: white;
+  color: black;
+}
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #121212;
+    color: white;
+  }
+}
+
 /* Outer layout */
 .layout {
   display: flex;
