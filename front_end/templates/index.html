@@ -1,10 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <link rel="stylesheet" href="static/css/layout.css" />
+  <link rel="stylesheet" href="static/css/content_box.css" />
 </head>
 <body>
-
-    <h1>Hello, World! </h1>
+  <div class="layout">
+    <div class="sidebar">{% include "components/sidebar.html" %}</div>
+    <div class="content">{% include "components/content.html" %}</div>
+  </div>
 
 </body>
 </html>
