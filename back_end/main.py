@@ -1,13 +1,18 @@
 import os
 from pathlib import Path
+
+from pydantic import BaseModel
+
 from fastapi import FastAPI
 from fastapi import Request
 
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 
 from config_settings import *
 
+class QueryRequest(BaseModel):
+    message: str
 
 app = FastAPI()
 
@@ -22,7 +27,10 @@ def root(request: Request):
         "chat_endpoint": "/chat"
     })
 
-
+@app.post("/chat")
+def chat(request: Request, query: QueryRequest):
+    response = query.message
+    return JSONResponse(content={"response": response})
 
 if __name__ == "__main__":
     import uvicorn

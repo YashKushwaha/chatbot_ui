@@ -24,7 +24,7 @@ body {
 }
 
 /* Outer layout */
-.layout {
+.app-layout {
   display: flex;
   height: 100vh; /* Full viewport height */
   width: 100vw;
@@ -32,7 +32,7 @@ body {
 }
 
 /* Sidebar */
-.sidebar {
+.layout-sidebar {
   width: 200px;
   background-color: #1e293b; /* Slate-800 */
   color: white;
@@ -41,23 +41,18 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
 }
 
 /* .content is a flex item inside .layout AND a flex container itself */
-.content {
+.layout-content {
   flex: 1; /* <-- behave as flex item */
   display: flex; /* <-- behave as flex container */
   flex-direction: column;
-  background-color: #f8fafc;
+  background-color: #eceaf2;
   padding: 0.25rem;
-  overflow-y: auto;
-  width: 800px;
-}
-
-
-/* Optional Styling */
-.sidebar {
-  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+  position: relative;
+  overflow: hidden;
 }
 
 @media (max-width: 768px) {

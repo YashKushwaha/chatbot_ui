@@ -8,26 +8,69 @@
 .scrollable-content {
   flex: 1; /* This fills remaining space */
   overflow-y: auto;
-  border: 1px solid #000;
+  border: 1px solid #f7f7f7;
+  width: 100%;
+  margin: 0 auto;
 }
+
+.chat-history-wrapper {
+    width: 80%;
+    height: 80%;
+    position: relative;
+    margin: 0 auto;
+}
+
+/* fixed-height footer area */
 .form-div {
-  flex: 0 0 auto;
-  height: 10%;
+  height: 100px; /* Fixed container height */
+  position: relative;
+  background: transparent;
+  z-index: 2; /* Important: bring it above scrollable-content if needed */
+  overflow: visible; /* allow inner to "spill" */
+}
+
+.form-inner {
   width: 80%;
-  margin: 0 auto;  
+  margin: 0 auto;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 100px;
+  overflow: visible; /* allow inner to "spill"   overflow-y: auto; */
+ 
+}
+
+#user-input-div  {
+  width: 100%;
+  height: 70px;
+  overflow-y: auto;
+  overflow-x: hidden;
   border: 1px solid #000;
 }
 
-.chat-box-user {
-    width: 80%;
+
+#control-buttons {
+  width: 100%;
+  padding: 0rem;
+  outline: none;
+  background: #f9f9f9;
+  height: 25px;
+  overflow-y: auto;
+}
+
+.user-message {
+    width: 60%;
     height: 100px;
-    margin-left: auto;
+    margin-left: calc(30%); ;
     background-color: #e2e8f0;
     margin-bottom: 10px;
+
 }
 
 .chat-box-bot {
-    width: 100%;
+    width: 80%;
+    margin: 1rem auto; /* ⬅️ centers child-a */
     height: 100px;
     background-color: #e2e8f0;
     margin-bottom: 10px;
