@@ -1,7 +1,3 @@
-const inputBox = document.getElementById("user-input-div");
-const chatHistory = document.getElementById("chat-history");
-const scrollContainer = document.getElementById("chat-history-container");
-
 // Utility: Scroll to bottom of chat
 function scrollToBottom(scrollContainer) {
   scrollContainer.scrollTop = scrollContainer.scrollHeight;
@@ -11,56 +7,67 @@ function scrollToBottom(scrollContainer) {
 function appendUserMessage(message, chatHistory) {
   const newMsg = document.createElement("div");
   newMsg.className = "user-message";
-  newMsg.textContent = message;
+  newMsg.innerHTML = message.replace(/\n/g, "<br>");
   chatHistory.appendChild(newMsg);
 }
-
-// Utility: Append server response
-function appendServerMessage(reply, chatHistory) {
+function appendServerMessage(markdownText, chatHistory) {
   const replyMsg = document.createElement("div");
   replyMsg.className = "server-message";
-  replyMsg.textContent = reply;
+
+  // Step 1: Use marked to parse markdown
+  let htmlContent = marked.parse(markdownText || "No response");
+
+  // Step 3: Set HTML and highlight
+  replyMsg.innerHTML = htmlContent;
+
+    // Highlight any <pre><code> blocks after inserting HTML
+   replyMsg.querySelectorAll("pre code").forEach((block) => {
+      hljs.highlightElement(block);
+    });
+
   chatHistory.appendChild(replyMsg);
   scrollToBottom(scrollContainer);
 }
 
-// Utility: Send message to backend
-async function sendMessageToBackend(message, chatHistory) {
+async function sendMessageToBackend(message) {
+  const formData = new FormData();
+  formData.append("message", message);
+
   try {
     const response = await fetch("/chat", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message }),
+      body: formData,
     });
 
     const data = await response.json();
-    console.log("Server replied:", data);
-
-    // Optional: Display server's reply
-    if (data.response) {
-      appendServerMessage(data.response, chatHistory);
-    }
+    return data; // ⬅️ just return the response
   } catch (err) {
     console.error("Send failed", err);
+    return null;
   }
 }
-
-
 
 async function handleUserInput(e) {
   if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
 
-    const message = inputBox.innerText.trim();
+    const message = inputDiv.innerText.trim();    
+    inputDiv.innerText = "";
     if (!message) return;
-
+    
     appendUserMessage(message, chatHistory);
-    inputBox.innerText = "";
+    
+    const data = await sendMessageToBackend(message);
+    if (data?.response) {
+      appendServerMessage(data.response, chatHistory);
+    } 
+    
     scrollToBottom(scrollContainer);
-
-    await sendMessageToBackend(message, chatHistory);
   }
 }
 
-// Main input handler
-inputBox.addEventListener("keydown", handleUserInput);
+const inputDiv = document.getElementById("user-input-div");
+const chatHistory = document.getElementById("chat-history");
+const scrollContainer = document.getElementById("chat-history-container");
+
+inputDiv.addEventListener("keydown", handleUserInput);

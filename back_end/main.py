@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 from fastapi import FastAPI
 from fastapi import Request
+from fastapi import Form, File, UploadFile
 
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, JSONResponse
@@ -27,10 +28,49 @@ def root(request: Request):
         "chat_endpoint": "/chat"
     })
 
+
 @app.post("/chat")
-def chat(request: Request, query: QueryRequest):
-    response = query.message
-    return JSONResponse(content={"response": response})
+async def chat(message: str = Form(...), image: UploadFile = File(None)):
+    print("Received message:", message)
+
+    # Sample markdown content
+    response = """
+## 🤖 Chatbot Response
+
+Hello! You said: **Hi**
+
+Here's a sample **Python** snippet:
+
+```python
+import pandas as pd
+
+def greet(name):
+    return f"Hello!"
+```
+
+We can also show some **JSON**:
+
+```json
+{
+  "name": "ChatGPT",
+  "language": "Python",
+  "version": 4.0
+}
+```
+
+- This is a bullet list
+- With **bold** text
+- And *italicized* items
+
+> This is a blockquote.
+
+Inline code looks like this: `print("Hello")`
+
+Thanks for testing!
+"""
+
+    return JSONResponse({"response": response})
+
 
 if __name__ == "__main__":
     import uvicorn
