@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-
+import asyncio
 from pydantic import BaseModel
 
 from fastapi import FastAPI
@@ -8,7 +8,7 @@ from fastapi import Request
 from fastapi import Form, File, UploadFile
 
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 
 from config_settings import *
 
@@ -28,13 +28,13 @@ def root(request: Request):
         "chat_endpoint": "/chat"
     })
 
+response_old = """
+Hello! You said: \n
+import pandas as pd \n
+How are you doing ?
+"""
 
-@app.post("/chat")
-async def chat(message: str = Form(...), image: UploadFile = File(None)):
-    print("Received message:", message)
-
-    # Sample markdown content
-    response = """
+response = """
 ## 🤖 Chatbot Response
 
 Hello! You said: **Hi**
@@ -69,6 +69,21 @@ Inline code looks like this: `print("Hello")`
 Thanks for testing!
 """
 
+async  def dummy_llm_call():
+    for word in response:
+        yield word
+        await asyncio.sleep(0.05)  # simulate delay
+
+
+@app.post("/chat")
+async def chat(message: str = Form(...), image: UploadFile = File(None)):
+    print("Received message:", message)
+    llm_output = dummy_llm_call()
+    return StreamingResponse(llm_output, media_type="text/plain")
+
+@app.post("/chat_old")
+async def chat(message: str = Form(...), image: UploadFile = File(None)):
+    print("Received message:", message)
     return JSONResponse({"response": response})
 
 

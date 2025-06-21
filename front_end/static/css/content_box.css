@@ -76,10 +76,12 @@
 
 .server-message code{
     background-color: #0d0d0f;
+    border-radius: 6px;
     }
 
 .server-message pre{
     background-color: #0d0d0f;
+    border-radius: 6px;
     }
 
 

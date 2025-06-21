@@ -47,7 +47,55 @@ async function sendMessageToBackend(message) {
   }
 }
 
-async function handleUserInput(e) {
+async function sendMessageToBackendStream(message, chatHistory) {
+  const formData = new FormData();
+  formData.append("message", message);
+
+  try {
+    const response = await fetch("/chat", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok || !response.body) {
+      throw new Error("Network or server error");
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+
+    let replyMsg = document.createElement("div");
+    replyMsg.className = "server-message";
+    chatHistory.appendChild(replyMsg);
+
+    let markdownBuffer = "";
+
+    // Read streamed data
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value, { stream: true });
+      markdownBuffer += chunk;
+
+      // Render and update innerHTML with parsed markdown
+      const htmlContent = marked.parse(markdownBuffer);
+      replyMsg.innerHTML = htmlContent;
+
+      // Highlight newly added code blocks
+      replyMsg.querySelectorAll("pre code:not(.hljs)").forEach((block) => {
+        hljs.highlightElement(block);
+      });
+
+      scrollToBottom(scrollContainer);
+    }
+  } catch (err) {
+    console.error("Streaming failed", err);
+  }
+}
+
+
+async function handleUserInput_old(e) {
   if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
 
@@ -63,6 +111,21 @@ async function handleUserInput(e) {
     } 
     
     scrollToBottom(scrollContainer);
+  }
+}
+
+async function handleUserInput(e) {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+
+    const message = inputDiv.innerText.trim();    
+    inputDiv.innerText = "";
+    if (!message) return;
+    
+    appendUserMessage(message, chatHistory);
+    
+    await sendMessageToBackendStream(message, chatHistory);
+    
   }
 }
 
