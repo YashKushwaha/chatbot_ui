@@ -1,2 +1,4 @@
 local_only/
 node_modules/
+
+**/.ipynb_checkpoints/**

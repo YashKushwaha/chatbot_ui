@@ -94,26 +94,6 @@ async function sendMessageToBackendStream(message, chatHistory) {
   }
 }
 
-
-async function handleUserInput_old(e) {
-  if (e.key === "Enter" && !e.shiftKey) {
-    e.preventDefault();
-
-    const message = inputDiv.innerText.trim();    
-    inputDiv.innerText = "";
-    if (!message) return;
-    
-    appendUserMessage(message, chatHistory);
-    
-    const data = await sendMessageToBackend(message);
-    if (data?.response) {
-      appendServerMessage(data.response, chatHistory);
-    } 
-    
-    scrollToBottom(scrollContainer);
-  }
-}
-
 async function handleUserInput(e) {
   if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
@@ -122,8 +102,7 @@ async function handleUserInput(e) {
     inputDiv.innerText = "";
     if (!message) return;
     
-    appendUserMessage(message, chatHistory);
-    
+    appendUserMessage(message, chatHistory);    
     await sendMessageToBackendStream(message, chatHistory);
     
   }
