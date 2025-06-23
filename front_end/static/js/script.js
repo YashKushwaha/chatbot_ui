@@ -34,7 +34,7 @@ async function sendMessageToBackend(message) {
   formData.append("message", message);
 
   try {
-    const response = await fetch("/chat", {
+    const response = await fetch(window.CHAT_ENDPOINT, {
       method: "POST",
       body: formData,
     });
@@ -52,7 +52,7 @@ async function sendMessageToBackendStream(message, chatHistory) {
   formData.append("message", message);
 
   try {
-    const response = await fetch("/chat", {
+    const response = await fetch(window.CHAT_ENDPOINT, {
       method: "POST",
       body: formData,
     });

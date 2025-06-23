@@ -38,8 +38,8 @@ llm = Ollama(
     context_window=context_window,
 )
 
-response = 'Sample sentence' 
-async  def dummy_llm_call():
+
+async  def dummy_llm_call(response):
     for word in response:
         yield word
         await asyncio.sleep(0.05)  # simulate delay
@@ -60,8 +60,8 @@ async def chat(message: str = Form(...), image: UploadFile = File(None)):
 @app.post("/chat_old")
 async def chat(message: str = Form(...), image: UploadFile = File(None)):
     print("Received message:", message)
-    return JSONResponse({"response": response})
-
+    #return JSONResponse({"response": message})
+    return StreamingResponse(dummy_llm_call(message), media_type="text/plain")
 
 if __name__ == "__main__":
     import uvicorn

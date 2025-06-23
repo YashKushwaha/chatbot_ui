@@ -1,4 +1,16 @@
 /* Reset box sizing for consistency */
+
+:root {
+  --primary-color: #3498db;
+  --background-color: black;
+  --grey1: #424242;
+  --text-color: white;
+  --sidebar-color: rgba(0,0,0,0.1);
+  --chat-box-bg-color:var(--grey1); 
+  --chat-box-bg-color-server:transparent; 
+  --layout-content-color: rgba(0,0,0,0.5);  
+}
+
 * {
   box-sizing: border-box;
 }
@@ -8,13 +20,12 @@ body, html {
   height: 100%;
   font-family: Arial, sans-serif;
   overflow: hidden; /* Prevent page from scrolling */
-  color: white;
 }
 
 /* Default (light mode) */
 body {
-  background: white;
-  color: black;
+  background: var(--background-color);
+  color: var(--text-color);
 }
 /* Dark mode */
 @media (prefers-color-scheme: dark) {
@@ -35,8 +46,8 @@ body {
 /* Sidebar */
 .layout-sidebar {
   width: 200px;
-  background-color: #1e293b; /* Slate-800 */
-  color: white;
+  background-color: var(--sidebar-color); /* Slate-800 */
+  color: var(--text-color);
   padding: 1rem;
   flex-shrink: 0; /* Prevent shrinking */
   display: flex;
@@ -50,7 +61,7 @@ body {
   flex: 1; /* <-- behave as flex item */
   display: flex; /* <-- behave as flex container */
   flex-direction: column;
-  background-color: #eceaf2;
+  background-color: var(--layout-content-color);
   padding: 0.25rem;
   position: relative;
   overflow: hidden;
@@ -65,4 +76,20 @@ body {
     width: 100%;
     box-shadow: none;
   }
+}
+
+/* Scrollbar Track */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+/* Scrollbar Thumb (the draggable part) */
+::-webkit-scrollbar-thumb {
+  background-color: var(--grey1);  /* Use your theme variable */
+  border-radius: 6px;
+}
+
+/* Scrollbar Track Background */
+::-webkit-scrollbar-track {
+  background-color: var(--background);
 }
