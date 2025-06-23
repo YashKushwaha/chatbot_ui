@@ -8,6 +8,7 @@ body, html {
   height: 100%;
   font-family: Arial, sans-serif;
   overflow: hidden; /* Prevent page from scrolling */
+  color: white;
 }
 
 /* Default (light mode) */

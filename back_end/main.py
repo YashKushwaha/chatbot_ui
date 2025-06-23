@@ -25,49 +25,8 @@ app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
 def root(request: Request):
     return templates.TemplateResponse("index.html", {
         "request": request,
-        "chat_endpoint": "/chat"
+        "chat_endpoint": "/chat_old"
     })
-
-response_old = """
-Hello! You said: \n
-import pandas as pd \n
-How are you doing ?
-"""
-
-response = """
-## 🤖 Chatbot Response
-
-Hello! You said: **Hi**
-
-Here's a sample **Python** snippet:
-
-```python
-import pandas as pd
-
-def greet(name):
-    return f"Hello!"
-```
-
-We can also show some **JSON**:
-
-```json
-{
-  "name": "ChatGPT",
-  "language": "Python",
-  "version": 4.0
-}
-```
-
-- This is a bullet list
-- With **bold** text
-- And *italicized* items
-
-> This is a blockquote.
-
-Inline code looks like this: `print("Hello")`
-
-Thanks for testing!
-"""
 
 from llama_index.llms.ollama import Ollama
 model = "phi4:latest"
@@ -79,6 +38,7 @@ llm = Ollama(
     context_window=context_window,
 )
 
+response = 'Sample sentence' 
 async  def dummy_llm_call():
     for word in response:
         yield word
