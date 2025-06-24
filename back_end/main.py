@@ -1,7 +1,11 @@
 import os
+print(os.getcwd())
+
 from pathlib import Path
 import asyncio
 from pydantic import BaseModel
+import boto3
+import botocore.session
 
 from fastapi import FastAPI
 from fastapi import Request
@@ -10,7 +14,29 @@ from fastapi import Form, File, UploadFile
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 
+
+
+from llama_index.llms.bedrock_converse import BedrockConverse
+
+from src.config_loader import get_config, load_env_vars
 from config_settings import *
+
+# Load config + .env
+config_path = Path(__file__).parent.parent / 'config' / 'settings.yaml'
+config = get_config(config_path)
+load_env_vars(config)
+#session = boto3.Session()  # uses env vars from .env.aws
+botocore_session = botocore.session.get_session()
+#https://github.com/run-llama/llama_index/blob/main/llama-index-integrations/llms/llama-index-llms-bedrock/llama_index/llms/bedrock/base.py
+
+MODEL_ID = 'arn:aws:bedrock:us-east-1::foundation-model/amazon.nova-lite-v1:0'
+MAX_TOKENS = 512
+TEMPERATURE = 0.7
+TOP_P = 0.9
+CONTEXT_SIZE = 512 # max length of input
+init_args = dict(model=MODEL_ID, temperature= TEMPERATURE, max_tokens = MAX_TOKENS)
+bedrock_llm = BedrockConverse(botocore_session = botocore_session, **init_args)
+
 
 class QueryRequest(BaseModel):
     message: str
@@ -25,19 +51,30 @@ app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
 def root(request: Request):
     return templates.TemplateResponse("index.html", {
         "request": request,
+        "chat_endpoint": "/chat"
+    })
+
+@app.get("/echo", response_class=HTMLResponse)
+def root(request: Request):
+    return templates.TemplateResponse("index.html", {
+        "request": request,
         "chat_endpoint": "/chat_old"
     })
 
 from llama_index.llms.ollama import Ollama
+
 model = "phi4:latest"
 context_window = 1000
 
-llm = Ollama(
+ollama_llm = Ollama(
     model=model,
     request_timeout=120.0,
     context_window=context_window,
 )
 
+#llm = ollama_llm
+
+llm = bedrock_llm
 
 async  def dummy_llm_call(response):
     for word in response:
@@ -49,12 +86,11 @@ async def stream_llm_response(prompt: str):
     response = llm.stream_complete(prompt)
     for chunk in response:
         yield chunk.delta
-        await asyncio.sleep(0)  # Yield control to event loop
+        await asyncio.sleep(0.1)
 
 
 @app.post("/chat")
 async def chat(message: str = Form(...), image: UploadFile = File(None)):
-    #response = llm.stream_complete(message)
     return StreamingResponse(stream_llm_response(message), media_type="text/plain")
 
 @app.post("/chat_old")

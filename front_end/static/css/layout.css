@@ -5,10 +5,10 @@
   --background-color: black;
   --grey1: #424242;
   --text-color: white;
-  --sidebar-color: rgba(0,0,0,0.1);
   --chat-box-bg-color:var(--grey1); 
   --chat-box-bg-color-server:transparent; 
   --layout-content-color: rgba(0,0,0,0.5);  
+  --sidebar-color: var(--grey1)
 }
 
 * {
