@@ -50,10 +50,3 @@ The project uses the `llama-index` framework to define and interact with LLMs. C
 
 ---
 
-## **Future Improvements (Optional Section)**
-
-- Image and file processing support in the input area.
-- Additional LLM integrations.
-- Improved error handling and UI enhancements.
-
----
