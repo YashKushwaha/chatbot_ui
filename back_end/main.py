@@ -15,10 +15,12 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 
 
-
+import json
 from llama_index.llms.bedrock_converse import BedrockConverse
 
 from src.config_loader import get_config, load_env_vars
+from src.chat_engines import get_simple_chat_engine
+
 from config_settings import *
 
 # Load config + .env
@@ -54,6 +56,37 @@ def root(request: Request):
         "chat_endpoint": "/chat"
     })
 
+@app.get("/chat_bot", response_class=HTMLResponse)
+def root(request: Request):
+    return templates.TemplateResponse("index.html", {
+        "request": request,
+        "chat_endpoint": "/chat_bot"
+    })
+
+
+@app.get("/chat_history", response_class=HTMLResponse)
+def chat_history(request: Request):
+    chat_history = app.state.chat_engine.chat_history
+
+    return templates.TemplateResponse("chat_history_template.html", {
+        "request": request,
+        "chat_history": chat_history
+    })
+
+@app.get("/buffer_memory", response_class=HTMLResponse)
+def chat_history(request: Request):
+    chat_history = app.state.chat_engine._memory.get()
+
+    return templates.TemplateResponse("chat_history_template.html", {
+        "request": request,
+        "chat_history": chat_history
+    })
+
+@app.get("/chat_history_raw", response_class=HTMLResponse)
+def root(request: Request):
+    chat_history = app.state.chat_engine.chat_history
+    return json.dumps([msg.dict() for msg in chat_history], indent=2)
+
 @app.get("/echo", response_class=HTMLResponse)
 def root(request: Request):
     return templates.TemplateResponse("index.html", {
@@ -72,9 +105,8 @@ ollama_llm = Ollama(
     context_window=context_window,
 )
 
-#llm = ollama_llm
-
-llm = bedrock_llm
+llm = ollama_llm
+#llm = bedrock_llm
 
 async  def dummy_llm_call(response):
     for word in response:
@@ -82,16 +114,30 @@ async  def dummy_llm_call(response):
         await asyncio.sleep(0.05)  # simulate delay
 
 # Async generator wrapper for the streaming LLM response
-async def stream_llm_response(prompt: str):
+async def stream_llm_response(llm, prompt: str):
     response = llm.stream_complete(prompt)
     for chunk in response:
         yield chunk.delta
         await asyncio.sleep(0.1)
 
+async def stream_llm_chat_response(llm, prompt: str):
+    response = llm.astream_chat(prompt)
+    for chunk in response:
+        yield chunk.delta
+        await asyncio.sleep(0.1)
+
+app.state.chat_engine = get_simple_chat_engine(llm)
+
+@app.post("/chat_bot")
+async def chat(message: str = Form(...), image: UploadFile = File(None)):
+    chat_engine = app.state.chat_engine
+    response = chat_engine.stream_chat(message=message)
+    return StreamingResponse(response.response_gen, media_type="text/plain")
+
 
 @app.post("/chat")
 async def chat(message: str = Form(...), image: UploadFile = File(None)):
-    return StreamingResponse(stream_llm_response(message), media_type="text/plain")
+    return StreamingResponse(stream_llm_response(llm, message), media_type="text/plain")
 
 @app.post("/chat_old")
 async def chat(message: str = Form(...), image: UploadFile = File(None)):
