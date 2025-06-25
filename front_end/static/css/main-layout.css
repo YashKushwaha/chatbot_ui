@@ -1,14 +1,19 @@
 /* Reset box sizing for consistency */
 
 :root {
-  --primary-color: #3498db;
-  --background-color: black;
-  --grey1: #424242;
+
+  --black : #222222;
+  --gray1: #272727;
+  --gray400: #333333;
   --text-color: white;
-  --chat-box-bg-color:var(--grey1); 
+
+  --background-color: var(--gray400);
+
+  --chat-box-bg-color:var(--gray1); 
   --chat-box-bg-color-server:transparent; 
-  --layout-content-color: rgba(0,0,0,0.5);  
-  --sidebar-color: var(--grey1)
+  --layout-content-color: transparent;  
+  --sidebar-color: var(--black);
+  --user-input-div-color: var(--gray1)
 }
 
 * {
@@ -27,13 +32,6 @@ body {
   background: var(--background-color);
   color: var(--text-color);
 }
-/* Dark mode */
-@media (prefers-color-scheme: dark) {
-  body {
-    background: #121212;
-    color: white;
-  }
-}
 
 /* Outer layout */
 .app-layout {
@@ -48,11 +46,11 @@ body {
   width: 200px;
   background-color: var(--sidebar-color); /* Slate-800 */
   color: var(--text-color);
-  padding: 1rem;
+  padding: 0.1rem;
   flex-shrink: 0; /* Prevent shrinking */
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.1rem;
   box-shadow: 2px 0 5px rgba(0,0,0,0.1);
 }
 
@@ -85,11 +83,11 @@ body {
 
 /* Scrollbar Thumb (the draggable part) */
 ::-webkit-scrollbar-thumb {
-  background-color: var(--grey1);  /* Use your theme variable */
+  background-color: var(--gray1);  /* Use your theme variable */
   border-radius: 6px;
 }
 
 /* Scrollbar Track Background */
 ::-webkit-scrollbar-track {
-  background-color: var(--background);
+  background-color: var(--background-color);
 }

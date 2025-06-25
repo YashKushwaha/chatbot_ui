@@ -49,8 +49,8 @@
   height: 70px;
   overflow-y: auto;
   overflow-x: hidden;
-  border: 1px solid #000;
-  background-color: var(--grey1);
+  border: 1px solid rgba(255, 255, 255, 0);
+  background-color: var(--user-input-div-color);
   border-radius: 1rem;
   padding: 1rem;
 }
