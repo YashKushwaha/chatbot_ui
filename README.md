@@ -14,6 +14,7 @@ The UI is organized into two main components:
 
 - **Back End**  
   FastAPI application that defines API endpoints and serves the front-end templates.
+---
 
 - **Note books**  
   Contains Jupyter notebooks to test Memory module of llama index. This memory module is required to convert a LLM into chatbot
