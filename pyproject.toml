@@ -23,7 +23,10 @@ dependencies = [
     "boto3 (==1.37.3)",
     "llama-index-llms-bedrock (>=0.3.8,<0.4.0)",
     "llama-index-llms-bedrock-converse (>=0.7.2,<0.8.0)",
-    "llama-index-embeddings-huggingface (>=0.5.4,<0.6.0)"
+    "llama-index-embeddings-huggingface (>=0.5.4,<0.6.0)",
+    "datasets (>=3.6.0,<4.0.0)",
+    "llama-index-vector-stores-chroma (>=0.4.2,<0.5.0)",
+    "protobuf (==3.20.3)"
 ]
 
 

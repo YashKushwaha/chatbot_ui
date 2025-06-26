@@ -24,6 +24,7 @@ from src.chat_engines import (get_simple_chat_engine, get_condense_question_chat
 
 from config_settings import *
 
+
 # Load config + .env
 config_path = Path(__file__).parent.parent / 'config' / 'settings.yaml'
 config = get_config(config_path)
