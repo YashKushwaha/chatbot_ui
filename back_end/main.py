@@ -6,7 +6,7 @@ import asyncio
 from pydantic import BaseModel
 import boto3
 import botocore.session
-
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from fastapi import FastAPI
 from fastapi import Request
 from fastapi import Form, File, UploadFile
@@ -24,23 +24,24 @@ from src.chat_engines import (get_simple_chat_engine, get_condense_question_chat
 
 from config_settings import *
 
+from scripts.data_loader import get_index_from_squad_dataset
 
-# Load config + .env
-config_path = Path(__file__).parent.parent / 'config' / 'settings.yaml'
-config = get_config(config_path)
-load_env_vars(config)
-#session = boto3.Session()  # uses env vars from .env.aws
-botocore_session = botocore.session.get_session()
-#https://github.com/run-llama/llama_index/blob/main/llama-index-integrations/llms/llama-index-llms-bedrock/llama_index/llms/bedrock/base.py
+def get_bedrock_llm():
+    config_path = Path(__file__).parent.parent / 'config' / 'settings.yaml'
+    config = get_config(config_path)
+    load_env_vars(config)
+    #session = boto3.Session()  # uses env vars from .env.aws
+    botocore_session = botocore.session.get_session()
+    #https://github.com/run-llama/llama_index/blob/main/llama-index-integrations/llms/llama-index-llms-bedrock/llama_index/llms/bedrock/base.py
 
-MODEL_ID = 'arn:aws:bedrock:us-east-1::foundation-model/amazon.nova-lite-v1:0'
-MAX_TOKENS = 512
-TEMPERATURE = 0.7
-TOP_P = 0.9
-CONTEXT_SIZE = 512 # max length of input
-init_args = dict(model=MODEL_ID, temperature= TEMPERATURE, max_tokens = MAX_TOKENS)
-bedrock_llm = BedrockConverse(botocore_session = botocore_session, **init_args)
-
+    MODEL_ID = 'arn:aws:bedrock:us-east-1::foundation-model/amazon.nova-lite-v1:0'
+    MAX_TOKENS = 512
+    TEMPERATURE = 0.7
+    TOP_P = 0.9
+    CONTEXT_SIZE = 512 # max length of input
+    init_args = dict(model=MODEL_ID, temperature= TEMPERATURE, max_tokens = MAX_TOKENS)
+    bedrock_llm = BedrockConverse(botocore_session = botocore_session, **init_args)
+    return bedrock_llm
 
 class QueryRequest(BaseModel):
     message: str
@@ -108,7 +109,7 @@ ollama_llm = Ollama(
 )
 
 llm = ollama_llm
-#llm = bedrock_llm
+#llm = get_bedrock_llm()
 
 async  def dummy_llm_call(response):
     for word in response:
@@ -132,16 +133,39 @@ async def stream_llm_chat_response(llm, prompt: str):
 #chat_engine = get_condense_question_chat_engine(llm)
 #chat_engine = get_context_chat_engine(llm)
 
-chat_engine = get_condense_plus_context_chat_engine(llm)
+embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
+index = get_index_from_squad_dataset(embed_model)
+chat_engine = get_context_chat_engine(llm, index)
 
 app.state.chat_engine  = chat_engine
+app.state.embed_model  = embed_model
+app.state.index = index 
+
+@app.get("/vector_store/stats")
+def vector_store_stats():
+    vector_store = app.state.index._vector_store
+    collection = vector_store._collection  # Chroma collection
+    
+    total_vectors = collection.count()
+    sample = collection.get(include=["documents", "metadatas"], limit=5)
+    
+    items = [
+        {"id": id_, "document": doc, "metadata": meta}
+        for id_, doc, meta in zip(sample["ids"], sample["documents"], sample["metadatas"])
+    ]
+    
+    return {
+        "total_vectors": total_vectors,
+        "sample_items": items
+    }
+
+
 
 @app.post("/chat_bot")
 async def chat(message: str = Form(...), image: UploadFile = File(None)):
     chat_engine = app.state.chat_engine
     response = chat_engine.stream_chat(message=message)
     return StreamingResponse(response.response_gen, media_type="text/plain")
-
 
 @app.post("/chat")
 async def chat(message: str = Form(...), image: UploadFile = File(None)):
