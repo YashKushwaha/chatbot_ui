@@ -25,6 +25,7 @@ from src.chat_engines import (get_simple_chat_engine, get_condense_question_chat
 from config_settings import *
 
 from scripts.data_loader import get_index_from_squad_dataset
+from routes import ui
 
 def get_bedrock_llm():
     config_path = Path(__file__).parent.parent / 'config' / 'settings.yaml'
@@ -51,51 +52,8 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
 
+app.include_router(ui.router)
 
-@app.get("/", response_class=HTMLResponse)
-def root(request: Request):
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "chat_endpoint": "/chat"
-    })
-
-@app.get("/chat_bot", response_class=HTMLResponse)
-def root(request: Request):
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "chat_endpoint": "/chat_bot"
-    })
-
-
-@app.get("/chat_history", response_class=HTMLResponse)
-def chat_history(request: Request):
-    chat_history = app.state.chat_engine.chat_history
-
-    return templates.TemplateResponse("chat_history_template.html", {
-        "request": request,
-        "chat_history": chat_history
-    })
-
-@app.get("/buffer_memory", response_class=HTMLResponse)
-def chat_history(request: Request):
-    chat_history = app.state.chat_engine._memory.get()
-
-    return templates.TemplateResponse("chat_history_template.html", {
-        "request": request,
-        "chat_history": chat_history
-    })
-
-@app.get("/chat_history_raw", response_class=HTMLResponse)
-def root(request: Request):
-    chat_history = app.state.chat_engine.chat_history
-    return json.dumps([msg.dict() for msg in chat_history], indent=2)
-
-@app.get("/echo", response_class=HTMLResponse)
-def root(request: Request):
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "chat_endpoint": "/chat_old"
-    })
 
 from llama_index.llms.ollama import Ollama
 
