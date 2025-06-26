@@ -19,7 +19,8 @@ import json
 from llama_index.llms.bedrock_converse import BedrockConverse
 
 from src.config_loader import get_config, load_env_vars
-from src.chat_engines import get_simple_chat_engine
+from src.chat_engines import (get_simple_chat_engine, get_condense_question_chat_engine, 
+                get_context_chat_engine, get_condense_plus_context_chat_engine)
 
 from config_settings import *
 
@@ -126,7 +127,13 @@ async def stream_llm_chat_response(llm, prompt: str):
         yield chunk.delta
         await asyncio.sleep(0.1)
 
-app.state.chat_engine = get_simple_chat_engine(llm)
+#app.state.chat_engine = get_simple_chat_engine(llm)
+#chat_engine = get_condense_question_chat_engine(llm)
+#chat_engine = get_context_chat_engine(llm)
+
+chat_engine = get_condense_plus_context_chat_engine(llm)
+
+app.state.chat_engine  = chat_engine
 
 @app.post("/chat_bot")
 async def chat(message: str = Form(...), image: UploadFile = File(None)):
