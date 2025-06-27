@@ -44,37 +44,7 @@ mlflow.set_tracking_uri(log_folder)
 mlflow.set_experiment("chatbot_debug_logs")
 mlflow.llama_index.autolog()  # Enable mlflow tracing
 
-from llama_index.core.instrumentation.event_handlers.base import BaseEventHandler
-from llama_index.core.instrumentation.events.base import BaseEvent
-
-class MyDebugHandler(BaseEventHandler):
-    """Tracks events for debugging."""
-
-    _logs: list = PrivateAttr(default_factory=list)  # Private mutable field
-
-    @classmethod
-    def class_name(cls) -> str:
-        return "MyDebugHandler"
-
-    def handle(self, event: BaseEvent, **kwargs):
-        log_entry = {
-            "event": event.class_name(),
-            "payload": event.payload,
-        }
-        print(f"[DEBUG] {log_entry}")  # Optional console log
-        self._logs.append(log_entry)
-
-    def get_logs(self):
-        return self._logs
-
 from llama_index.core import Settings
-from llama_index.core.instrumentation.dispatcher import Dispatcher
-"""
-debug_handler = MyDebugHandler()
-dispatcher = Dispatcher()
-dispatcher.add_event_handler(debug_handler)
-Settings.dispatcher = dispatcher
-"""
 
 def get_bedrock_llm():
     config_path = Path(__file__).parent.parent / 'config' / 'settings.yaml'
@@ -84,7 +54,8 @@ def get_bedrock_llm():
     botocore_session = botocore.session.get_session()
     #https://github.com/run-llama/llama_index/blob/main/llama-index-integrations/llms/llama-index-llms-bedrock/llama_index/llms/bedrock/base.py
 
-    MODEL_ID = 'arn:aws:bedrock:us-east-1::foundation-model/amazon.nova-lite-v1:0'
+    full_arn = 'arn:aws:bedrock:us-east-1::foundation-model/amazon.nova-lite-v1:0'
+    MODEL_ID = full_arn.split("/")[-1]
     MAX_TOKENS = 512
     TEMPERATURE = 0.7
     TOP_P = 0.9
@@ -103,10 +74,6 @@ app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
 
 app.include_router(ui.router)
 
-# Setup callback manager
-#debug_handler = DebugHandler()
-#callback_manager = CallbackManager([debug_handler])
-
 from llama_index.llms.ollama import Ollama
 
 model = "phi4:latest"
@@ -118,8 +85,8 @@ ollama_llm = Ollama(
     context_window=context_window,
 )
 
-llm = ollama_llm
-#llm = get_bedrock_llm()
+#llm = ollama_llm
+llm = get_bedrock_llm()
 
 async  def dummy_llm_call(response):
     for word in response:
