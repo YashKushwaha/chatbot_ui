@@ -36,15 +36,7 @@ def load_squad_documents(max_docs=50, download_location=None):
     dataset = load_dataset("rajpurkar/squad_v2", cache_dir=download_location)
     print('SQUAD data will be downloaded to ', download_location)
     documents = []
-    for i in dataset['train'].select(range(max_docs)):
-        """
-        item = dict(i)
-        context = item.pop('context')
-        metadata  = item
-        documents.append(Document(text=context, metadata=metadata))
-        """
-        
-        
+    for i in dataset['train'].select(range(max_docs)):       
         document = process_squad_item(i)
         documents.append(document)
 

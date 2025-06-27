@@ -1,6 +1,6 @@
 local_only/
 node_modules/
-
+mlflow_logs/
 **/.ipynb_checkpoints/**
 **/mlruns/**
 **/lib/**
