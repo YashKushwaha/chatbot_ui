@@ -1,5 +1,5 @@
 
-# **Reusable LLM UI Project + chat bot using llama index**
+# **Reusable LLM UI + chat bot using llama index**
 
 This project had following learning objectives -
 - Build **reusable front-end UI** that can work with any Large Language Model (LLM) backend.
