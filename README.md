@@ -35,7 +35,7 @@ The UI is organized into two main components:
 
 ---
 - **src**
-  Placeholder for bulk of the project logic and creating reusable assets that can be reused across projects
+  - Placeholder for bulk of the project logic and creating reusable assets that can be reused across projects
 
 ---
 
@@ -44,9 +44,9 @@ The UI is organized into two main components:
 The project uses the `llama-index` framework to define and interact with LLMs. Currently, two LLM integrations are implemented:
 
 - **Ollama**  
-  Supports any LLM served locally via Ollama.
+  - Supports any LLM served locally via Ollama.
 - **AWS Bedrock**  
-  Connects to LLMs hosted on AWS Bedrock. The demo utilizes the `nova-lite` models.
+  - Connects to LLMs hosted on AWS Bedrock. The demo utilizes the `nova-lite` models.
 ---
 
 ## **Front-End Features**
