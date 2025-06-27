@@ -14,7 +14,7 @@ This project had following learning objectives -
 
 - Project uses [squad_v2 dataset](https://huggingface.co/datasets/rajpurkar/squad_v2) for building its knowledge database 
 - [ChromaDB offline client](https://docs.trychroma.com/docs/run-chroma/persistent-client) used to store embeddings
-- [`all-MiniLM-L6-v2`](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) is used as the embedding model
+- [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) embedding model running as a local service used to generate embeddings from user query & document embeddings
 - [MLflow](https://docs.llamaindex.ai/en/stable/examples/observability/MLflow/) used for tracing & debugging
 ---
 
