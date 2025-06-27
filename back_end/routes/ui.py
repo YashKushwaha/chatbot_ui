@@ -51,9 +51,9 @@ def root(request: Request):
     })
 
 
-@app.get("/vector_store/stats")
-def vector_store_stats():
-    vector_store = app.state.index._vector_store
+@router.get("/vector_store/stats")
+def vector_store_stats(request: Request):
+    vector_store = request.app.state.index._vector_store
     collection = vector_store._collection  # Chroma collection
     
     total_vectors = collection.count()
