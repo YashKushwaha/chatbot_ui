@@ -1,4 +1,7 @@
-import os
+import requests
+import subprocess
+import time
+import os, sys
 
 from pathlib import Path
 import asyncio
@@ -29,6 +32,7 @@ from src.config_loader import get_config, load_env_vars
 from src.chat_engines import (get_simple_chat_engine, get_condense_question_chat_engine, 
                 get_context_chat_engine, get_condense_plus_context_chat_engine)
 
+from src.embedding_client import RemoteEmbedding
 from config_settings import *
 
 from scripts.data_loader import get_index_from_squad_dataset
@@ -37,6 +41,8 @@ from routes import ui
 debug_logs = []
 
 import mlflow
+
+EMBEDDING_SERVER_PORT = 8001
 
 log_folder = os.path.join(PROJECT_ROOT, 'mlflow_logs')
 os.makedirs(log_folder, exist_ok=True)
@@ -85,8 +91,8 @@ ollama_llm = Ollama(
     context_window=context_window,
 )
 
-#llm = ollama_llm
-llm = get_bedrock_llm()
+llm = ollama_llm
+#llm = get_bedrock_llm()
 
 async  def dummy_llm_call(response):
     for word in response:
@@ -112,31 +118,15 @@ async def stream_llm_chat_response(llm, prompt: str):
 
 Settings.llm = llm
 
-embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
+#embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
+
+embed_model = RemoteEmbedding(f"http://localhost:{EMBEDDING_SERVER_PORT}")
 index = get_index_from_squad_dataset(embed_model)
 chat_engine = get_context_chat_engine(llm, index)
 
 app.state.chat_engine  = chat_engine
 app.state.embed_model  = embed_model
 app.state.index = index 
-
-@app.get("/vector_store/stats")
-def vector_store_stats():
-    vector_store = app.state.index._vector_store
-    collection = vector_store._collection  # Chroma collection
-    
-    total_vectors = collection.count()
-    sample = collection.get(include=["documents", "metadatas"], limit=5)
-    
-    items = [
-        {"id": id_, "document": doc, "metadata": meta}
-        for id_, doc, meta in zip(sample["ids"], sample["documents"], sample["metadatas"])
-    ]
-    
-    return {
-        "total_vectors": total_vectors,
-        "sample_items": items
-    }
 
 @app.post("/chat_bot")
 async def chat(message: str = Form(...), image: UploadFile = File(None)):

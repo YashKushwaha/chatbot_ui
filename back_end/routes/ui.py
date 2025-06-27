@@ -49,3 +49,22 @@ def root(request: Request):
         "request": request,
         "chat_endpoint": "/chat_old"
     })
+
+
+@app.get("/vector_store/stats")
+def vector_store_stats():
+    vector_store = app.state.index._vector_store
+    collection = vector_store._collection  # Chroma collection
+    
+    total_vectors = collection.count()
+
+    sample = collection.get(include=["documents", "metadatas"], limit=2)
+    items = [
+        {"id": id_, "document": doc, "metadata": meta}
+        for id_, doc, meta in zip(sample["ids"], sample["documents"], sample["metadatas"])
+    ]
+
+    return {
+        "total_vectors": total_vectors,
+        "sample_items": items
+    }
